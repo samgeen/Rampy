@@ -40,7 +40,7 @@ class Simulation(object):
     def Name(self):
         return self._name
         
-    def Run(self):
+    def RunInThread(self):
         print threading.activeCount()
         thread = RamsesThread(sim)
         try:
@@ -51,4 +51,4 @@ class Simulation(object):
     
 if __name__=="__main__":
     sim = Simulation("TestSim", ".")
-    sim.Run()
+    sim.RunInThread()

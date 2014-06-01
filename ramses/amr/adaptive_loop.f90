@@ -1,4 +1,4 @@
-subroutine adaptive_loop
+subroutine init_sim
   use amr_commons
   use hydro_commons
   use pm_commons
@@ -45,7 +45,26 @@ subroutine adaptive_loop
 
   if(myid==1)write(*,*)'Starting time integration' 
 
-  do ! Main time loop
+999 format(' Level ',I2,' has ',I10,' grids (',3(I8,','),')')
+
+end subroutine init_sim
+
+subroutine sim_step
+  use amr_commons
+  use hydro_commons
+  use pm_commons
+  use poisson_commons
+  use cooling_module
+  implicit none
+#ifndef WITHOUTMPI
+  include 'mpif.h'
+#endif
+  integer::ilevel,idim,ivar,info
+  real(kind=8)::tt1,tt2
+  real(kind=4)::real_mem,real_mem_tot
+
+! STEP BY HAND IN THIS VERSION
+!  do ! Main time loop
 
 #ifndef WITHOUTMPI
      tt1=MPI_WTIME(info)
@@ -132,8 +151,9 @@ subroutine adaptive_loop
      endif
 #endif
 
-  end do
+! STEP BY HAND IN THIS VERSION
+!  end do
 
 999 format(' Level ',I2,' has ',I10,' grids (',3(I8,','),')')
 
-end subroutine adaptive_loop
+end subroutine sim_step

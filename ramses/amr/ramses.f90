@@ -1,5 +1,4 @@
 ! HACKED TO ALLOW JUMPING OUT WITHOUT HARD STOPPING PROGRAM
-!f2py threadsafe
 
 program ramses
   !f2py threadsafe
@@ -16,11 +15,12 @@ subroutine run
 end subroutine run
 
 subroutine run_ramses_SETJUMP
+  !f2py threadsafe
   ! Read run parameters
   call read_params
   
   ! Start time integration
-  call adaptive_loop
+  call init_sim
   return
 end subroutine run_ramses_SETJUMP
 
