@@ -1,28 +1,14 @@
 ! HACKED TO ALLOW JUMPING OUT WITHOUT HARD STOPPING PROGRAM
 
-program ramses
-  !f2py threadsafe
-  ! HACK - ALLOWS REPLACEMENT OF STOP STATEMENT
-  ! set_jump in clean_stop.c calls run_ramses (below)
-  ! If long_jump is called, the program will pull the stack back up to
-  !   set_jump, which will return without re-calling run_ramses
-  call set_jump
-end program ramses
+module data
+  use pm_commons
+  implicit none
+!f2py   real(dp),allocatable,dimension(:,:)::xp       ! Positionsr
+!f2py   real(dp),allocatable,dimension(:,:)::vp       ! Velocities
+!f2py   real(dp),allocatable,dimension(:)  ::mp       ! Masses
+!f2py   real(dp),allocatable,dimension(:)  ::tp       ! Birth epoch
 
-subroutine run
-  !f2py threadsafe
-  call set_jump
-end subroutine run
-
-subroutine run_ramses_SETJUMP
-  !f2py threadsafe
-  ! Read run parameters
-  call read_params
-  
-  ! Start time integration
-  call init_sim
-  return
-end subroutine run_ramses_SETJUMP
+end module data
 
 subroutine init
   !f2py threadsafe
@@ -30,6 +16,6 @@ subroutine init
 end subroutine init
 
 subroutine step
-  !f2py threadsafe                                                              
+  !f2py threadsafe
   call set_jump_step
 end subroutine step
