@@ -7,7 +7,7 @@ NDIM = 3
 NPRE = 8
 NVAR = 6
 SOLVER = hydro
-PATCH = ../patch/disc_patch ../patch/courty
+PATCH = ../patch/disc_patch ../patch/courty ../patch/rampy
 EXEC = ramses
 ATON_FLAGS = #-DATON  # Uncomment to enable ATON.
 #############################################################################

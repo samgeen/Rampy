@@ -7,6 +7,10 @@ python module rampy ! in
         end subroutine run
         subroutine run_ramses_setjump ! in :ramses:../amr/ramses.f90
         end subroutine run_ramses_setjump
+        subroutine init ! in :ramses:../patch/rampy/ramses.f90
+        end subroutine init
+        subroutine step ! in :ramses:../patch/rampy/ramses.f90
+        end subroutine step
     end interface 
 end python module rampy
 

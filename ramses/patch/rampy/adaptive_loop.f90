@@ -1,12 +1,9 @@
-subroutine adaptive_loop
+subroutine init_sim
   use amr_commons
   use hydro_commons
   use pm_commons
   use poisson_commons
   use cooling_module
-#ifdef RT
-  use rt_hydro_commons
-#endif
   implicit none
 #ifndef WITHOUTMPI
   include 'mpif.h'
@@ -22,17 +19,12 @@ subroutine adaptive_loop
   call init_amr                      ! Initialize AMR variables
   call init_time                     ! Initialize time variables
   if(hydro)call init_hydro           ! Initialize hydro variables
-#ifdef RT
-  if(rt.or.neq_chem) &
-       call rt_init_hydro            ! Initialize radiation variables
-#endif
   if(poisson)call init_poisson       ! Initialize poisson variables
 #ifdef ATON
   if(aton)call init_radiation        ! Initialize radiation variables
 #endif
   if(nrestart==0)call init_refine    ! Build initial AMR grid
-  if(cooling.and..not.neq_chem) &
-       call set_table(dble(aexp))    ! Initialize cooling look up table
+  if(cooling)call set_table(dble(aexp))  ! Initialize cooling look up table
   if(pic)call init_part              ! Initialize particle variables
   if(pic)call init_tree              ! Initialize particle tree
   if(nrestart==0)call init_refine_2  ! Build initial AMR grid again
@@ -53,7 +45,26 @@ subroutine adaptive_loop
 
   if(myid==1)write(*,*)'Starting time integration' 
 
-  do ! Main time loop
+999 format(' Level ',I2,' has ',I10,' grids (',3(I8,','),')')
+
+end subroutine init_sim
+
+subroutine sim_step
+  use amr_commons
+  use hydro_commons
+  use pm_commons
+  use poisson_commons
+  use cooling_module
+  implicit none
+#ifndef WITHOUTMPI
+  include 'mpif.h'
+#endif
+  integer::ilevel,idim,ivar,info
+  real(kind=8)::tt1,tt2
+  real(kind=4)::real_mem,real_mem_tot
+
+! STEP BY HAND IN THIS VERSION
+!  do ! Main time loop
 
 #ifndef WITHOUTMPI
      tt1=MPI_WTIME(info)
@@ -70,7 +81,7 @@ subroutine adaptive_loop
 #endif
 
      ! Make new refinements
-     if(levelmin.lt.nlevelmax .and..not.static)then
+     if(levelmin.lt.nlevelmax)then
         call refine_coarse
         do ilevel=1,levelmin
            call build_comm(ilevel)
@@ -82,26 +93,13 @@ subroutine adaptive_loop
               do ivar=1,nvar
 #endif
                  call make_virtual_fine_dp(uold(1,ivar),ilevel)
-#ifdef SOLVERmhd
               end do
-#else
-              end do
-#endif
               if(simple_boundary)call make_boundary_hydro(ilevel)
-           endif
-#ifdef RT
-           if(rt)then
-              do ivar=1,nrtvar
-                 call make_virtual_fine_dp(rtuold(1,ivar),ilevel)
-              end do
-              if(simple_boundary)call rt_make_boundary_hydro(ilevel)
-           endif
-#endif
-           if(poisson)then
-              call make_virtual_fine_dp(phi(1),ilevel)
-              do idim=1,ndim
-                 call make_virtual_fine_dp(f(1,idim),ilevel)
-              end do
+              if(poisson)then
+                 do idim=1,ndim
+                    call make_virtual_fine_dp(f(1,idim),ilevel)
+                 end do
+              end if
            end if
            if(ilevel<levelmin)call refine_fine(ilevel)
         end do
@@ -110,10 +108,10 @@ subroutine adaptive_loop
      ! Call base level
      call amr_step(levelmin,1)
 
-     if(levelmin.lt.nlevelmax .and..not. static)then
-        do ilevel=levelmin-1,1,-1
-           ! Hydro book-keeping
-           if(hydro)then
+     if(levelmin.lt.nlevelmax)then
+        ! Hydro book-keeping
+        if(hydro)then
+           do ilevel=levelmin-1,1,-1
               call upload_fine(ilevel)
 #ifdef SOLVERmhd
               do ivar=1,nvar+3
@@ -121,31 +119,15 @@ subroutine adaptive_loop
               do ivar=1,nvar
 #endif
                  call make_virtual_fine_dp(uold(1,ivar),ilevel)
-#ifdef SOLVERmhd
               end do
-#else
-              end do
-#endif
               if(simple_boundary)call make_boundary_hydro(ilevel)
-           end if
-#ifdef RT
-           ! Radiation book-keeping
-           if(rt)then
-              call rt_upload_fine(ilevel)
-              do ivar=1,nrtvar
-                 call make_virtual_fine_dp(rtuold(1,ivar),ilevel)
-              end do
-              if(simple_boundary)call rt_make_boundary_hydro(ilevel)
-           end if
-#endif
-           ! Gravity book-keeping
-           if(poisson)then
-              call make_virtual_fine_dp(phi(1),ilevel)
-              do idim=1,ndim
-                 call make_virtual_fine_dp(f(1,idim),ilevel)
-              end do
-           end if
-        end do
+              if(poisson)then
+                 do idim=1,ndim
+                    call make_virtual_fine_dp(f(1,idim),ilevel)
+                 end do
+              end if
+           end do
+        end if
         
         ! Build refinement map
         do ilevel=levelmin-1,1,-1
@@ -169,8 +151,9 @@ subroutine adaptive_loop
      endif
 #endif
 
-  end do
+! STEP BY HAND IN THIS VERSION
+!  end do
 
 999 format(' Level ',I2,' has ',I10,' grids (',3(I8,','),')')
 
-end subroutine adaptive_loop
+end subroutine sim_step
