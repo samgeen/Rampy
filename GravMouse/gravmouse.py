@@ -19,6 +19,7 @@ class Integrator(object):
         self._window._integrator = self
         self._mx = 0.5
         self._my = 0.5
+        self._step = False
         
     def Setup(self):
         
@@ -59,6 +60,12 @@ class Integrator(object):
                 return
             self._mx = x
             self._my = y
+            self._step = buttons == 1
+            
+        @self._window.event
+        def on_mouse_release(x, y, button, modifiers):
+            self._step = False
+            
         # Initialise sim data
         self._MakeParts()
         rampy.data.init()
@@ -108,12 +115,13 @@ class Integrator(object):
         f.close()
     
     def Step(self, dt):
-        rampy.data.xp[0,0] = self._mx
-        rampy.data.xp[0,1] = self._my
-        rampy.data.xp[0,2] = 0.5
-        rampy.data.vp[0,:] = 0.0
-        rampy.data.vp[:,:] *= 0.5**(dt)
-        rampy.data.step()
+        if self._step:
+            rampy.data.xp[0,0] = self._mx
+            rampy.data.xp[0,1] = self._my
+            rampy.data.xp[0,2] = 0.5
+            rampy.data.vp[0,:] = 0.0
+            rampy.data.vp[:,:] *= 0.5**(dt)
+            rampy.data.step()
         
 
 
