@@ -5,17 +5,17 @@ python module rampy ! in
     interface  ! in :rampy
         module data ! in :rampy:../patch/rampy/ramses.f90
             use pm_commons
-            real(kind=dp), allocatable,dimension(:,:) :: vp
-            real(kind=dp), allocatable,dimension(:,:) :: xp
-            real(kind=dp), allocatable,dimension(:) :: mp
-            real(kind=dp), allocatable,dimension(:) :: tp
+            real(kind=8), allocatable,dimension(:,:) :: vp
+            real(kind=8), allocatable,dimension(:,:) :: xp
+            real(kind=8), allocatable,dimension(:) :: mp
+            real(kind=8), allocatable,dimension(:) :: tp
+            subroutine init ! in :rampy:../patch/rampy/ramses.f90:data
+                threadsafe 
+            end subroutine init
+            subroutine step ! in :rampy:../patch/rampy/ramses.f90:data
+                threadsafe 
+            end subroutine step
         end module data
-        subroutine init ! in :rampy:../patch/rampy/ramses.f90
-            threadsafe 
-        end subroutine init
-        subroutine step ! in :rampy:../patch/rampy/ramses.f90
-            threadsafe 
-        end subroutine step
     end interface 
 end python module rampy
 
