@@ -74,6 +74,7 @@ class Integrator(object):
         s = 0.02
         #glOrtho(-s,+s,-s,+s,-100*s,+100*s)
         glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glPointSize(2)
         # Set up pyglet to run
         pyglet.clock.set_fps_limit(60)
