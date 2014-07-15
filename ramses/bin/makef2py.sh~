@@ -1,1 +1,0 @@
-f2py -lgfortran -c ramses.pyf *.o

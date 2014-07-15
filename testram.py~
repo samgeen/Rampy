@@ -1,7 +1,0 @@
-import ramses, os
-
-if __name__=="__main__":
-    print "ENTERING"
-    os.chdir("/data/Simulations/igam4er/Run")
-    ramses.run()
-    print "EXITED"
